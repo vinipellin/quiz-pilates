@@ -6,6 +6,23 @@
 <meta name="theme-color" content="#2FA36A">
 <title>Quiz de Pilates — Descubre Tu Plan Personalizado en Casa</title>
 <meta name="description" content="Responde 3 minutos de preguntas y recibe tu plan personalizado de Pilates y Entrenamiento en Casa. ¡Más de 150.000 mujeres ya transformaron sus cuerpos!">
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '1565529678259133');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=1565529678259133&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel Code -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -795,8 +812,8 @@
       <div class="pr-flag">⭐ MÁS POPULAR</div>
       <div class="pr-top">
         <span class="pr-radio"></span>
-        <div class="pr-info"><b>PRO — 3 meses</b><small>Plan de 12 semanas</small><div class="pr-old"><s>R$297,00</s> → <span>R$39,90</span></div></div>
-        <div class="pr-day"><b>R$0,47</b><small>por día</small><small class="pr-total">R$39,90 total</small></div>
+        <div class="pr-info"><b>PRO — 3 meses</b><small>Plan de 12 semanas</small><div class="pr-old"><s>US$ 69,90</s> → <span>US$ 9,90</span></div></div>
+        <div class="pr-day"><b>US$ 0,12</b><small>por día</small><small class="pr-total">US$ 9,90 total</small></div>
       </div>
       <div class="pr-bonus">
         <div class="pb-h">🎁 BONOS INCLUIDOS EN EL PLAN:</div>
@@ -804,7 +821,7 @@
         <div class="pb-i"><span>✓</span> +Clase en vivo con profesora de Pilates</div>
       </div>
     </div>
-    <button class="btn pulse offer-cta" onclick="goToCheckout()">🎉 Obtener Mi Plan — R$ 39,90</button>
+    <button class="btn pulse offer-cta" onclick="goToCheckout()">🎉 Obtener Mi Plan — US$ 9,90</button>
     <div class="pay-note">🔒 Pago 100% seguro · Acceso inmediato</div>
 
     <div class="mp-box"><div class="mp-logo">mercado<br>pago</div><div><b>Mercado Pago · Compra Garantizada</b><small>Recibe tu compra o tu dinero de vuelta</small></div></div>
@@ -820,8 +837,8 @@
       <div class="pr-flag">⭐ MÁS POPULAR</div>
       <div class="pr-top">
         <span class="pr-radio"></span>
-        <div class="pr-info"><b>PRO — 3 meses</b><small>Plan de 12 semanas</small><div class="pr-old"><s>R$297,00</s> → <span>R$39,90</span></div></div>
-        <div class="pr-day"><b>R$0,47</b><small>por día</small><small class="pr-total">R$39,90 total</small></div>
+        <div class="pr-info"><b>PRO — 3 meses</b><small>Plan de 12 semanas</small><div class="pr-old"><s>US$ 69,90</s> → <span>US$ 9,90</span></div></div>
+        <div class="pr-day"><b>US$ 0,12</b><small>por día</small><small class="pr-total">US$ 9,90 total</small></div>
       </div>
       <div class="pr-bonus">
         <div class="pb-h">🎁 BONOS INCLUIDOS EN EL PLAN:</div>
@@ -829,7 +846,7 @@
         <div class="pb-i"><span>✓</span> +Clase en vivo con profesora de Pilates</div>
       </div>
     </div>
-    <button class="btn pulse offer-cta" onclick="goToCheckout()">🎉 Obtener Mi Plan — R$ 39,90</button>
+    <button class="btn pulse offer-cta" onclick="goToCheckout()">🎉 Obtener Mi Plan — US$ 9,90</button>
     <div class="pay-note">🔒 Pago 100% seguro · Acceso inmediato</div>
     <p class="offer-foot">Mereces invertir en ti misma. ¡Empieza hoy! 💗</p>
   </section>
@@ -1178,9 +1195,8 @@ function goToOffer(){
 }
 function closeCouponModal(){ document.getElementById('couponModal').style.display = 'none'; }
 function goToCheckout(){
-  const CHECKOUT_URL = "#"; // TODO: cole aqui a URL do seu checkout (Hotmart/Kiwify/Mercado Pago...)
-  if(CHECKOUT_URL === "#"){ alert("Aquí va el enlace de tu checkout. Pásame la URL y lo configuro."); return; }
-  window.location.href = CHECKOUT_URL;
+  if(window.fbq) fbq('track','InitiateCheckout');
+  window.location.href = "https://pay.hotmart.com/D106981139S?checkoutMode=10";
 }
 function buildOffer(){
   const OBJ = ["Bajar de peso","Ganar masa muscular","Mejorar la flexibilidad","Salud general"];
@@ -1237,6 +1253,7 @@ function genCoupon(){
 function submitName(){
   userName = (document.getElementById('nameInput').value || '').trim();
   couponCode = genCoupon();
+  if(window.fbq) fbq('track','Lead');
   goNext();
 }
 function multiToggle(i){
