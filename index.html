@@ -6,6 +6,26 @@
 <meta name="theme-color" content="#2FA36A">
 <title>Quiz de Pilates — Descubre Tu Plan Personalizado en Casa</title>
 <meta name="description" content="Responde 3 minutos de preguntas y recibe tu plan personalizado de Pilates y Entrenamiento en Casa. ¡Más de 150.000 mujeres ya transformaron sus cuerpos!">
+<!-- Blindaje: aísla errores de scripts de terceros (Pixel/Clarity/VTurb) para que NUNCA interrumpan el quiz -->
+<script>
+(function(){
+  window.addEventListener('error', function(ev){
+    var msg = (ev && ev.message) ? String(ev.message) : '';
+    var src = (ev && ev.filename) ? String(ev.filename) : '';
+    var isThirdParty = src === '' || msg === 'Script error.' ||
+      /facebook|fbevents|clarity\.ms|converteai|vturb|gstatic|googleapis/i.test(src);
+    if(isThirdParty){
+      if(ev.preventDefault) ev.preventDefault();
+      if(ev.stopImmediatePropagation) ev.stopImmediatePropagation();
+      return true; // no dejar que un error de terceros afecte la página
+    }
+  }, true);
+  window.addEventListener('unhandledrejection', function(ev){
+    // silencia rechazos de promesas de scripts de terceros
+    if(ev && ev.preventDefault) ev.preventDefault();
+  });
+})();
+</script>
 <!-- Meta Pixel Code -->
 <script>
 !function(f,b,e,v,n,t,s)
@@ -42,7 +62,7 @@ src="https://www.facebook.com/tr?id=1565529678259133&ev=PageView&noscript=1"
 <!-- End VTurb preload -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=optional" rel="stylesheet">
 <style>
   :root{
     --rose:#2FA36A;
@@ -143,6 +163,8 @@ src="https://www.facebook.com/tr?id=1565529678259133&ev=PageView&noscript=1"
 
   /* Quiz question */
   .q-head{text-align:center;margin-bottom:13px}
+  .cheer{text-align:center;background:linear-gradient(120deg,var(--rose-mist),var(--rose-soft));border:1px solid var(--rose-soft);color:var(--rose-deep);font-family:var(--sans);font-weight:800;font-size:14px;padding:10px 14px;border-radius:12px;margin:0 auto 14px;max-width:340px;line-height:1.3}
+  .cheer.cheer-in{animation:pop .45s both}
   .q-eyebrow{font-size:11.5px;font-weight:800;color:var(--rose);letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px}
   .q-title{font-family:var(--serif);font-weight:600;font-size:clamp(21px,5.6vw,26px);line-height:1.12;letter-spacing:-.02em}
   .q-note{font-size:13px;color:var(--ink-soft);margin-top:5px}
@@ -717,11 +739,12 @@ src="https://www.facebook.com/tr?id=1565529678259133&ev=PageView&noscript=1"
       <button onclick="selectAge(3)"><span class="rd"></span>71 años o más</button>
     </div>
     <div class="h2-infobox">Haz este test para tener un protocolo específico para tu caso. Al final recibes tu diagnóstico gratis.</div>
-    <div class="h2-time">✅ TIEMPO ESTIMADO: 49 SEGUNDOS</div>
+    <div class="h2-time">✅ TIEMPO ESTIMADO: 1 MINUTO</div>
   </section>
 
   <!-- ========== QUIZ ========== -->
   <section class="screen" id="s-quiz">
+    <div class="cheer" id="cheer" style="display:none"></div>
     <div class="q-head">
       <div class="q-eyebrow" id="qEyebrow">Objetivo</div>
       <h2 class="q-title" id="qTitle"></h2>
@@ -1375,7 +1398,7 @@ const TOTAL = QUESTIONS.length;
 const INTERSTITIAL = t => ['info','beforeafter','analyzing','cause','analyzing2','solution','analyzing3','vsl'].includes(t);
 const realTotal = QUESTIONS.filter(q=>!INTERSTITIAL(q.type)).length;
 function questionsBefore(idx){ let c=0; for(let i=0;i<idx;i++){ if(!INTERSTITIAL(QUESTIONS[i].type)) c++; } return c; }
-function goNext(){ if(step < QUESTIONS.length-1){ step++; renderStep(); } else { finishQuiz(); } }
+function goNext(){ if(step < QUESTIONS.length-1){ step++; renderStep(); saveProgress(); } else { finishQuiz(); } }
 
 /* draws a stylized female body silhouette from shoulder/waist/hip half-widths */
 function bodySvg(sh,wa,hip,id){
@@ -1449,6 +1472,7 @@ function initVslPlayer(){
   const wrap = document.getElementById('vslWrap');
   if(!wrap) return;
   vslPlayerLoaded = true;
+  try{
   // SDK de la VTurb (comunicación padre <-> iframe)
   const sdk = document.createElement('script');
   sdk.src = 'https://scripts.converteai.net/lib/js/smartplayer-wc/v4/sdk.js';
@@ -1476,6 +1500,7 @@ function initVslPlayer(){
   const mk = document.getElementById('salesMockup'); if(mk) mk.src = IMG_MOCKUP;
   document.querySelectorAll('#vslUnlock img[data-mock]').forEach(el=>el.src = IMG_MOCKUP);
   const pf = document.getElementById('profPhoto'); if(pf) pf.src = IMG_PROF;
+  }catch(e){ /* si VTurb falla, el quiz sigue funcionando normalmente */ }
 }
 
 /* VSL: revela el botón "Garantizar mi acceso" a los 03:15 del video */
@@ -1680,23 +1705,77 @@ function renderStep(){
   const qInfo = document.getElementById('qInfo');
   if(q.info){ qInfo.innerHTML = q.info; qInfo.className = 'q-info ' + (q.infoStyle || 'rose'); qInfo.style.display = 'block'; }
   else { qInfo.style.display = 'none'; }
-  document.getElementById('multiBtn').style.display = (q.type === 'multi') ? 'flex' : 'none';
-  if(q.type === 'multi') updateMultiBtn();
+  document.getElementById('multiBtn').style.display = 'flex';
+  updateMultiBtn();
 
   document.getElementById('backBtn').style.visibility = step === 0 ? 'hidden' : 'visible';
 
   const names = [["Camila","Renata","Paula"],["Beatriz","Aline","Sofia"],["Larissa","Bruna","Carla"]];
   const n = names[step % names.length];
   document.getElementById('microSocial').textContent = `${n[0]}, ${n[1]} e +${Math.max(120, 2400 - done*95)} respondieron hoy`;
+  maybeCheer(pct);
   show('quiz');
   window.scrollTo({top:0,behavior:'instant'});
+  saveProgress();
+}
+
+/* ===== Mensajes de motivación en etapas clave ===== */
+const CHEERS = [
+  { p:25, msg:"💪 ¡Buen comienzo! Sigue así" },
+  { p:50, msg:"🎯 ¡Ya vas por la mitad!" },
+  { p:75, msg:"✨ ¡Ya casi terminas!" },
+  { p:90, msg:"🙌 ¡Últimas preguntas, no pares!" }
+];
+let cheersShown = {};
+function maybeCheer(pct){
+  const el = document.getElementById('cheer');
+  if(!el) return;
+  let msg = '';
+  for(const c of CHEERS){ if(pct >= c.p && !cheersShown[c.p]){ msg = c.msg; cheersShown[c.p] = true; } }
+  if(msg){
+    el.textContent = msg;
+    el.style.display = 'block';
+    el.classList.remove('cheer-in'); void el.offsetWidth; el.classList.add('cheer-in');
+  } else {
+    el.style.display = 'none';
+  }
+}
+
+/* ===== Guardar / retomar progreso (el usuario vuelve donde lo dejó) ===== */
+function saveProgress(){
+  try{
+    localStorage.setItem('pilquiz', JSON.stringify({
+      step: step, answers: answers, userName: userName,
+      couponCode: couponCode, cheers: cheersShown, t: Date.now()
+    }));
+  }catch(e){}
+}
+function clearProgress(){ try{ localStorage.removeItem('pilquiz'); }catch(e){} }
+function loadProgress(){
+  try{
+    const raw = localStorage.getItem('pilquiz');
+    if(!raw) return false;
+    const d = JSON.parse(raw);
+    if(!d || typeof d.step !== 'number' || d.step < 1) return false;
+    if(d.t && (Date.now() - d.t) > 6*60*60*1000){ clearProgress(); return false; } // expira en 6h
+    if(Array.isArray(d.answers)) d.answers.forEach((v,i)=>{ answers[i] = v; });
+    userName = d.userName || '';
+    couponCode = d.couponCode || couponCode;
+    cheersShown = d.cheers || {};
+    step = d.step;
+    document.getElementById('progressShell').classList.add('on');
+    showChrome(true);
+    renderStep();
+    return true;
+  }catch(e){ return false; }
 }
 
 function choose(i){
   answers[step] = i;
   const opts = document.querySelectorAll('#options .opt');
   opts.forEach((o,idx)=>o.classList.toggle('sel', idx===i));
-  setTimeout(()=>{ goNext(); }, 280);
+  updateMultiBtn();
+  saveProgress();
 }
 
 function prevStep(){
@@ -1729,6 +1808,7 @@ function goToOffer(){
 function closeCouponModal(){ document.getElementById('couponModal').style.display = 'none'; }
 function goToCheckout(){
   if(window.fbq) fbq('track','InitiateCheckout');
+  clearProgress();
   window.location.href = "https://pay.hotmart.com/D106981139S?checkoutMode=10";
 }
 function buildOffer(){
@@ -1776,16 +1856,19 @@ function multiToggle(i){
   if(idx >= 0) arr.splice(idx,1); else arr.push(i);
   document.querySelectorAll('#options .opt').forEach((o,k)=>o.classList.toggle('sel', arr.includes(k)));
   updateMultiBtn();
+  saveProgress();
+}
+function isAnswered(){
+  const a = answers[step];
+  return Array.isArray(a) ? a.length > 0 : (a !== undefined && a !== null);
 }
 function updateMultiBtn(){
   const btn = document.getElementById('multiBtn');
   if(!btn) return;
-  const has = Array.isArray(answers[step]) && answers[step].length > 0;
-  btn.classList.toggle('is-off', !has);
+  btn.classList.toggle('is-off', !isAnswered());
 }
 function multiContinue(){
-  const q = QUESTIONS[step];
-  if(q && q.type === 'multi' && !(Array.isArray(answers[step]) && answers[step].length > 0)) return;
+  if(!isAnswered()) return;
   goNext();
 }
 function ynChoose(v){
@@ -1900,22 +1983,14 @@ function startToasts(){
   setTimeout(function loop(){ next(); setTimeout(loop, 8500); }, 3500);
 }
 
-/* ============ CHECKOUT (placeholder) ============ */
-function checkout(){
-  // TODO: troque pela URL do seu checkout (Hotmart, Kiwify, Eduzz, etc.)
-  const CHECKOUT_URL = "#";
-  if(CHECKOUT_URL === "#"){
-    alert("Aqui entra o link do seu checkout (Hotmart/Kiwify/Eduzz). Me passe a URL que eu deixo configurado.");
-    return;
-  }
-  window.location.href = CHECKOUT_URL;
-}
-
 /* Fotos de las etapas 18 y 19 */
 (function(){
   var r=document.getElementById('recoPhoto'); if(r) r.src=IMG_RECO;
   var s=document.getElementById('solPhoto'); if(s) s.src=IMG_SOL;
 })();
+
+/* Al cargar: si hay progreso guardado (<6h), retomar donde quedó */
+(function(){ try{ loadProgress(); }catch(e){} })();
 </script>
 </body>
 </html>
